@@ -35,6 +35,10 @@ on:
         description: Whether or not to run Go client tests. Set to something else to not run the tests.
         required: true
         default: run
+      run_java:
+        description: Whether or not to run Java Thin client tests. Set to something else to not run the tests.
+        required: true
+        default: run
 jobs:
   upload_jars:
     name: Create and upload JARs
@@ -716,3 +720,86 @@ jobs:
           ./rc.sh start
           make test-all
         working-directory: client
+
+  setup_java_client_matrix:
+    name: Setup the Java Thin client test matrix
+    if: ${{ github.event.inputs.run_python == 'run' }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Checkout to scripts
+        uses: actions/checkout@v4
+      - name: Set client matrix
+        id: set-matrix
+        #run: echo "matrix=$( python get_client_matrix.py --client java --option tag --use-latest-patch-versions )" >> "$GITHUB_OUTPUT"
+        run: echo "matrix=['5.5.1-SNAPSHOT']" >> "$GITHUB_OUTPUT"
+
+  test_java_client:
+    needs: [ upload_jars, setup_java_client_matrix ]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        client_tag: ${{ fromJson(needs.setup_go_client_matrix.outputs.matrix) }}
+        server_kind: [ enterprise, os ]
+
+    name: Test Java Thin client ${{ matrix.client_tag }} with ${{ matrix.server_kind }} server
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java.version }}
+          distribution: ${{ matrix.java.distribution }}
+
+      - name: Checkout to ${{ matrix.client_tag }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.organization_name }}/hazelcast-java-client
+          token: ${{ secrets.GH_PAT }}
+          path: java-client
+          ref: ${{ matrix.client_tag }}
+
+      - name: Setup Local Maven Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Remove ${{ needs.upload_jars.outputs.hz_server_version }} dir from Local Maven Cache
+        run: |
+          rm -r ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
+          rm -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
+
+      - name: Download Hazelcast JAR
+        uses: actions/download-artifact@v2
+        with:
+          name: hazelcast
+          path: ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
+
+      - name: Download Hazelcast Enterprise JAR
+        if: ${{ matrix.server_kind == 'enterprise' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: hazelcast-enterprise
+          path: ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
+
+      - name: Run non-enterprise tests
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -V -e install -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ needs.upload_jars.outputs.hz_server_version }}
+        working-directory: client/hazelcast-java-client
+
+      - name: Run enterprise tests
+        if: ${{ matrix.server_kind == 'enterprise' }}
+        shell: bash -l {0}
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -V -e test -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ needs.upload_jars.outputs.hz_server_version }}
+        working-directory: client/hazelcast-enterprise-java-client
