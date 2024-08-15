@@ -723,7 +723,7 @@ jobs:
 
   setup_java_client_matrix:
     name: Setup the Java Thin client test matrix
-    if: ${{ github.event.inputs.run_python == 'run' }}
+    if: ${{ github.event.inputs.run_java == 'run' }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
