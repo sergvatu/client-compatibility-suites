@@ -737,7 +737,7 @@ jobs:
       - name: Set client matrix
         id: set-matrix
         #run: echo "matrix=$( python get_client_matrix.py --client java --option tag --use-latest-patch-versions )" >> "$GITHUB_OUTPUT"
-        run: echo 'matrix=["5.5.1-SNAPSHOT"]' >> "$GITHUB_OUTPUT"
+        run: echo 'matrix=["5.5.0"]' >> "$GITHUB_OUTPUT"
 
   test_java_client:
     needs: [ upload_jars, setup_java_client_matrix ]
