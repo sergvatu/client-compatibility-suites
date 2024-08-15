@@ -776,23 +776,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Remove ${{ needs.upload_jars.outputs.hz_server_version }} dir from Local Maven Cache
+      - name: Remove ${{ github.event.inputs.hz_version }} dir from Local Maven Cache
         run: |
-          rm -r ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
-          rm -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
+          rm -r ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
+          rm -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ github.event.inputs.hz_version }}
 
       - name: Download Hazelcast JAR
         uses: actions/download-artifact@v2
         with:
           name: hazelcast
-          path: ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
+          path: ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
 
       - name: Download Hazelcast Enterprise JAR
         if: ${{ matrix.server_kind == 'enterprise' }}
         uses: actions/download-artifact@v2
         with:
           name: hazelcast-enterprise
-          path: ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
+          path: ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ github.event.inputs.hz_version }}
 
       - name: Run non-enterprise tests
         run: |
