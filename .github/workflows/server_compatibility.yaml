@@ -737,7 +737,7 @@ jobs:
       - name: Set client matrix
         id: set-matrix
         #run: echo "matrix=$( python get_client_matrix.py --client java --option tag --use-latest-patch-versions )" >> "$GITHUB_OUTPUT"
-        run: echo "matrix=['5.5.1-SNAPSHOT']" >> "$GITHUB_OUTPUT"
+        run: echo 'matrix=["5.5.1-SNAPSHOT"]' >> "$GITHUB_OUTPUT"
 
   test_java_client:
     needs: [ upload_jars, setup_java_client_matrix ]
@@ -745,7 +745,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        client_tag: ${{ fromJson(needs.setup_go_client_matrix.outputs.matrix) }}
+        client_tag: ${{ fromJson(needs.setup_java_client_matrix.outputs.matrix) }}
         server_kind: [ enterprise, os ]
 
     name: Test Java Thin client ${{ matrix.client_tag }} with ${{ matrix.server_kind }} server
