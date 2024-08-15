@@ -778,8 +778,8 @@ jobs:
 
       - name: Remove ${{ github.event.inputs.hz_version }} dir from Local Maven Cache
         run: |
-          rm -r ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
-          rm -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ github.event.inputs.hz_version }}
+          rm -f -r ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
+          rm -f -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ github.event.inputs.hz_version }}
 
       - name: Download Hazelcast JAR
         uses: actions/download-artifact@v2
