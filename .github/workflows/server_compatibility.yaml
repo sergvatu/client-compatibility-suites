@@ -43,6 +43,8 @@ jobs:
   upload_jars:
     name: Create and upload JARs
     runs-on: ubuntu-latest
+    outputs:
+      hz_server_version: ${{ steps.set_up_hz_server_version.outputs.HAZELCAST_SERVER_VERSION }}
     steps:
       - name: Checkout to scripts
         uses: actions/checkout@v4
@@ -69,6 +71,10 @@ jobs:
           path: hazelcast-mono
           ref: ${{ github.event.inputs.branch_name }}
           token: ${{ secrets.GH_PAT }}
+      - name: Set up HAZELCAST_SERVER_VERSION env
+        id: set_up_hz_server_version
+        run: echo "HAZELCAST_SERVER_VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )" >> "$GITHUB_OUTPUT"
+        working-directory: hazelcast-mono
       - name: Build JARs
         run: mvn clean install -DskipTests=True
         working-directory: hazelcast-mono
@@ -776,31 +782,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Remove ${{ github.event.inputs.hz_version }} dir from Local Maven Cache
+      - name: Remove ${{ needs.upload_jars.outputs.hz_server_version }} dir from Local Maven Cache
         run: |
-          rm -f -r ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
-          rm -f -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ github.event.inputs.hz_version }}
+          rm -f -r ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
+          rm -f -r ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
 
       - name: Download Hazelcast JAR
         uses: actions/download-artifact@v2
         with:
           name: hazelcast
-          path: ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
-
-      - name: Display structure of downloaded files
-        run: ls -R
+          path: ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
 
       - name: Download Hazelcast Enterprise JAR
         if: ${{ matrix.server_kind == 'enterprise' }}
         uses: actions/download-artifact@v2
         with:
           name: hazelcast-enterprise
-          path: ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ github.event.inputs.hz_version }}
+          path: ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
 
       - name: Run non-enterprise tests
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e install -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ github.event.inputs.hz_version }}
+          ./mvnw -B -V -e install -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ needs.upload_jars.outputs.hz_server_version }}
         working-directory: java-client/hazelcast-java-client
 
       - name: Run enterprise tests
@@ -808,5 +811,5 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ github.event.inputs.hz_version }}
+          ./mvnw -B -V -e test -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ needs.upload_jars.outputs.hz_server_version }}
         working-directory: java-client/hazelcast-enterprise-java-client
