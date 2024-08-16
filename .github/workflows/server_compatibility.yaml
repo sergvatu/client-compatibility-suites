@@ -787,6 +787,9 @@ jobs:
           name: hazelcast
           path: ~/.m2/repository/com/hazelcast/hazelcast/${{ github.event.inputs.hz_version }}
 
+      - name: Display structure of downloaded files
+        run: ls -R
+
       - name: Download Hazelcast Enterprise JAR
         if: ${{ matrix.server_kind == 'enterprise' }}
         uses: actions/download-artifact@v2
