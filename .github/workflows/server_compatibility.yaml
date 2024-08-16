@@ -796,7 +796,7 @@ jobs:
       - name: Download Hazelcast tests JAR
         uses: actions/download-artifact@v2
         with:
-          name: hazelcast
+          name: hazelcast-tests
           path: ~/.m2/repository/com/hazelcast/hazelcast/${{ needs.upload_jars.outputs.hz_server_version }}
 
       - name: Download Hazelcast Enterprise JAR
