@@ -801,7 +801,7 @@ jobs:
           path: ~/.m2/repository/com/hazelcast/hazelcast-enterprise/${{ needs.upload_jars.outputs.hz_server_version }}
 
       - name: Set up HZ_LICENSEKEY env
-        if: ${{ matrix.kind == 'enterprise' }}
+        if: ${{ matrix.server_kind == 'enterprise' }}
         run: |
           echo "HZ_LICENSEKEY=${{ secrets.HAZELCAST_ENTERPRISE_KEY }}" >> $GITHUB_ENV
 
