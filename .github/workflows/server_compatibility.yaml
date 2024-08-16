@@ -797,7 +797,7 @@ jobs:
       - name: Run non-enterprise tests
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e install -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ needs.upload_jars.outputs.hz_server_version }}
+          ./mvnw -B -V -e install -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ github.event.inputs.hz_version }}
         working-directory: java-client/hazelcast-java-client
 
       - name: Run enterprise tests
@@ -805,5 +805,5 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ needs.upload_jars.outputs.hz_server_version }}
+          ./mvnw -B -V -e test -Pintegration-tests -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ github.event.inputs.hz_version }}
         working-directory: java-client/hazelcast-enterprise-java-client
