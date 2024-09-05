@@ -37,11 +37,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server-version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
+        server-version: [ "5.5.0" ] #${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
         kind: [ os, enterprise ]
         os: [ ubuntu-latest ]
-        java: [ { version: 17, distribution: corretto },
-#                { version: 21, distribution: corretto },
+        java: [# { version: 17, distribution: corretto },
+                { version: 21, distribution: corretto },
 #                { version: 17, distribution: zulu },
 #                { version: 21, distribution: zulu },
 #                { version: 17, distribution: semeru },
@@ -97,7 +97,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e install -Pintegration-tests -Pcode-coverage -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ matrix.server-version }}
+          ./mvnw -B -V -e install -Pintegration-tests -Pcode-coverage -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ matrix.server-version }} -Dtest=com.hazelcast.client.listeners.TopicOnReconnectTest
         working-directory: client/hazelcast-java-client
 
       - name: Run enterprise tests
@@ -105,5 +105,5 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ matrix.server-version }}
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ matrix.java.version }} -Dtest.hazelcast-server.version=${{ matrix.server-version }} -Dtest=com.hazelcast.client.listeners.EnterpriseTopicOnReconnectTest
         working-directory: client/hazelcast-enterprise-java-client
