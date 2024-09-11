@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server-version: [ "5.5.0" ] #${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
+        server-version: [ "5.2.5" ] #${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
         kind: [ os, enterprise ]
         os: [ ubuntu-latest ]
         java: [# { version: 17, distribution: corretto },
