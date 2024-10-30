@@ -1,4 +1,4 @@
-name: Java Client (Standard) Nightly Tests
+name: Java Client Monorepo Nightly Tests
 on:
   workflow_dispatch:
 
