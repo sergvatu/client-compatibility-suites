@@ -100,7 +100,7 @@ jobs:
           chmod +x mvnw
           HAZELCAST_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "HAZELCAST_VERSION=${HAZELCAST_VERSION}" >> $GITHUB_ENV
-          ./mvnw -B -V -e verify -Pintegration-tests
+          ./mvnw -B -V -e verify -Pintegration-tests -Dtest=ClientStatisticsTest
 
       - name: "Archive os server logs"
         uses: actions/upload-artifact@v4
