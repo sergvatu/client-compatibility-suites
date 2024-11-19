@@ -1,7 +1,8 @@
 name: Java Client (Standard) Nightly Tests
 on:
   workflow_dispatch:
-
+  schedule:
+    - cron: '0 0 */3 * *' # every 3rd day
 jobs:
   test:
     env:
@@ -102,6 +103,26 @@ jobs:
           echo "HAZELCAST_VERSION=${HAZELCAST_VERSION}" >> $GITHUB_ENV
           ./mvnw -B -V -e verify -Pintegration-tests
 
+      - name: "Enterprise Vector Module Test"
+        working-directory: hazelcast-enterprise-java-client-vector
+        env:
+          HZ_LICENSEKEY: ${{secrets.HAZELCAST_ENTERPRISE_KEY}}
+        run: |
+          chmod +x mvnw
+          HAZELCAST_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "HAZELCAST_VERSION=${HAZELCAST_VERSION}" >> $GITHUB_ENV
+          ./mvnw -B -V -e verify -Pintegration-tests 
+
+      - name: "Enterprise Module Test"
+        working-directory: hazelcast-enterprise-java-client
+        env:
+          HZ_LICENSEKEY: ${{secrets.HAZELCAST_ENTERPRISE_KEY}}
+        run: |
+          chmod +x mvnw
+          HAZELCAST_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "HAZELCAST_VERSION=${HAZELCAST_VERSION}" >> $GITHUB_ENV
+          ./mvnw -B -V -e verify -Pintegration-tests
+
       - name: "Archive os server logs"
         uses: actions/upload-artifact@v4
         if: always()
@@ -109,3 +130,9 @@ jobs:
           name: server-os-logs_${{ matrix.os }}_${{ matrix.java-distribution }}_${{ matrix.java-version }}
           path: hazelcast-java-client/target/server_log.txt
 
+      - name: "Archive ent server logs"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: server-ent-logs_${{ matrix.os }}_${{ matrix.java-distribution }}_${{ matrix.java-version }}
+          path: hazelcast-enterprise-java-client/target/server_log.txt
