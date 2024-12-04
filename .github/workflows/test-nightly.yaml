@@ -9,7 +9,7 @@ jobs:
       HZ_VERSION: 5.5.0
     strategy:
       matrix:
-        os: [ windows-latest ]
+        os: [ windows-latest, macos-latest ]
         java-distribution: [ adopt, zulu, oracle, microsoft ]
         java-version: [ 17, 21 ]
         # in short, windows runs with:
