@@ -2,7 +2,7 @@ name: Java Client (Standard) Nightly Enterprise Tests
 on:
   workflow_dispatch:
   schedule:
-    - cron: '* * 1 * *' # github actions consume more resources, run monthly
+    - cron: '0 0 */3 * *' # every 3rd day
 jobs:
   test:
     env:
@@ -66,6 +66,13 @@ jobs:
         uses: "actions/checkout@v4"
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: "Checkout Java Client Code"
+        uses: "actions/checkout@v4"
+        with:
+          repository: hazelcast/hazelcast-java-client
+          token: ${{ secrets.GH_PAT }}
+          ref: master
 
       - name: "Setup JRE"
         uses: "actions/setup-java@v4"
