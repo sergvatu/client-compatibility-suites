@@ -1,0 +1,105 @@
+name: Java Client (Standard) Nightly OS Tests
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '* * 1 * *' # github actions consume more resources, run monthly
+jobs:
+  test:
+    env:
+      HZ_VERSION: 5.5.0
+    strategy:
+      matrix:
+        os: [ windows-latest, macos-latest ]
+        java-distribution: [ adopt, zulu, oracle, microsoft ]
+        java-version: [ 17, 21 ]
+        # in short, windows runs with:
+        #
+        # microsoft jdk 17 and 21
+        # oracle jdk 21
+        #
+        # macos runs with:
+        #
+        # openjdk 17 (adopt is used instead because other one does not exist)
+        # zulu 21
+        exclude:
+          - os: windows-latest
+            java-distribution: adopt
+            java-version: 17
+          - os: windows-latest
+            java-distribution: adopt
+            java-version: 21
+          - os: windows-latest
+            java-distribution: zulu
+            java-version: 17
+          - os: windows-latest
+            java-distribution: zulu
+            java-version: 21
+          - os: macos-latest
+            java-distribution: oracle
+            java-version: 17
+          - os: macos-latest
+            java-distribution: oracle
+            java-version: 21
+          - os: macos-latest
+            java-distribution: microsoft
+            java-version: 17
+          - os: macos-latest
+            java-distribution: microsoft
+            java-version: 21
+          - os: macos-latest
+            java-distribution: adopt
+            java-version: 21
+          - os: macos-latest
+            java-distribution: zulu
+            java-version: 17
+          - os: windows-latest
+            java-distribution: oracle
+            java-version: 17
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: "bash"
+
+    steps:
+      - name: "Checkout Code"
+        uses: "actions/checkout@v4"
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: "Setup JRE"
+        uses: "actions/setup-java@v4"
+        with:
+          distribution: ${{ matrix.java-distribution }}
+          java-version: ${{ matrix.java-version }}
+
+      - name: "Setup Local Maven Cache"
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-   
+
+      - name: "Build modules"
+        run: |
+          chmod +x mvnw
+          HAZELCAST_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "HAZELCAST_VERSION=${HAZELCAST_VERSION}" >> $GITHUB_ENV
+          ./mvnw -B -V -e clean install -DskipTests
+
+      - name: "OS Module Test"
+        working-directory: hazelcast-java-client
+        run: |
+          chmod +x mvnw
+          HAZELCAST_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "HAZELCAST_VERSION=${HAZELCAST_VERSION}" >> $GITHUB_ENV
+          ./mvnw -B -V -e verify -Pintegration-tests
+
+      - name: "Archive os server logs"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: server-os-logs_${{ matrix.os }}_${{ matrix.java-distribution }}_${{ matrix.java-version }}
+          path: hazelcast-java-client/target/server_log.txt
+
