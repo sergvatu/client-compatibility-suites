@@ -83,7 +83,7 @@ jobs:
           compare-to: 5.3.0
 
       - name: Set up HZ_LICENSEKEY env
-        if: ${{ contains(fromJson('["enterprise", "os_tests_on_enterprise"]), matrix.kind) }}
+        if: ${{ contains(fromJson('["enterprise", "os_tests_on_enterprise"]'), matrix.kind) }}
         run: |
           echo "HZ_LICENSEKEY=${{ '>' == steps.version.outputs.comparison-result && secrets.HAZELCAST_ENTERPRISE_KEY || secrets.HAZELCAST_ENTERPRISE_KEY_V5 }}" >> $GITHUB_ENV
 
