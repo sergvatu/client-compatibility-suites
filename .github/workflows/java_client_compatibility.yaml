@@ -38,7 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         server_version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
-        server_kind: [ os, enterprise, os_tests_on_enterprise ]
+        server_kind: [ os, enterprise ]
         tests_type: [ os, enterprise ]
         exclude:
           - server_kind: os
