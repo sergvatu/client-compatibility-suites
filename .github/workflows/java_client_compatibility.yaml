@@ -39,13 +39,13 @@ jobs:
       matrix:
         server-version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
         kind: [ os, enterprise, os_tests_on_enterprise ]
-    run-name: >
-      ${{ format(
-        'Test Java client {0} branch {1} {2} server',
-        github.event.inputs.branch_name,
-        matrix.kind == 'os_tests_on_enterprise' ? 'running OS tests on enterprise' : 'against ' + matrix.kind,
-        matrix.server-version
-      ) }}
+    name: >-
+      Test Java client ${{ github.event.inputs.branch_name }} branch
+      against
+      ${{ matrix.kind }}
+      ${{ matrix.server-version }}
+      server
+      ${{ if eq(matrix.kind, 'os_tests_on_enterprise'), '(OS tests on Enterprise server)', '' }} # Conditional name part
     steps:
       - name: Checkout to scripts
         uses: actions/checkout@v4
