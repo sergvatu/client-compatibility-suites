@@ -41,11 +41,9 @@ jobs:
         kind: [ os, enterprise, os_tests_on_enterprise ]
     name: >-
       Test Java client ${{ github.event.inputs.branch_name }} branch
-      against
-      ${{ matrix.kind }}
+      ${{ contains(fromJson('["os_tests_on_enterprise"]'), matrix.kind) && ' running OS tests against enterprise ' || format(' against {0} ', ${{ matrix.kind }}) }}
       ${{ matrix.server-version }}
       server
-      ${{ contains(fromJson('["os_tests_on_enterprise"]'), matrix.kind) && format('(OS tests on Enterprise server)') || '' }}
     steps:
       - name: Checkout to scripts
         uses: actions/checkout@v4
