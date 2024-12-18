@@ -39,7 +39,6 @@ jobs:
       matrix:
         server-version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
         kind: [ os, enterprise, os_tests_on_enterprise ]
-    name: Run tests
     run-name: >
       ${{ format(
         'Test Java client {0} branch {1} {2} server',
