@@ -95,7 +95,7 @@ jobs:
         working-directory: client
 
       - name: Run non-enterprise tests
-        if: ${{ contains(['os', 'os_tests_on_enterprise'], matrix.kind) }}
+        if: ${{ contains(fromJson('["os", "os_tests_on_enterprise"]'), matrix.kind) }}
         shell: bash -l {0}
         run: |
           chmod +x mvnw
