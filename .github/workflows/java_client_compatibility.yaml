@@ -45,7 +45,7 @@ jobs:
       ${{ matrix.kind }}
       ${{ matrix.server-version }}
       server
-      ${{ if eq(matrix.kind, 'os_tests_on_enterprise'), '(OS tests on Enterprise server)', '' }} # Conditional name part
+      ${{ contains(fromJson('["os_tests_on_enterprise"]'), matrix.kind) && format('(OS tests on Enterprise server)') || '' }}
     steps:
       - name: Checkout to scripts
         uses: actions/checkout@v4
