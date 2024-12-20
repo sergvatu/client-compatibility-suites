@@ -104,7 +104,7 @@ jobs:
         # remove -Dtest=ClientMapBasicTest when tests start passing
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=ClientConnectionProcessListenerTest#successfulConnection
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=ClientMapBasicTest#testGetName
         working-directory: client/hazelcast-java-client
 
       - name: Run enterprise Vector tests
