@@ -37,13 +37,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server_version: ["5.5.0"]#${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
+        server_version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
         server_kind: [ os, enterprise ]
         tests_type: [ os, enterprise ]
         exclude:
           - server_kind: os
-            tests_type: enterprise
-          - server_kind: enterprise
             tests_type: enterprise
 
     name: Test Java client ${{ github.event.inputs.branch_name }} branch running ${{ matrix.tests_type }} tests against ${{ matrix.server_kind }} ${{ matrix.server_version }} server
@@ -100,7 +98,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=ProxyFactoryTest
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }}
         working-directory: client/hazelcast-java-client
 
       - name: Run enterprise Vector tests
