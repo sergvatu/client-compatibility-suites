@@ -100,7 +100,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=HazelcastClientCachingProviderTest#testMemberCachingProviderXmlConfig
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=HazelcastClientCachingProviderTest#testMemberCachingProviderYamlConfig
         working-directory: client/hazelcast-java-client
 
       - name: Run enterprise Vector tests
