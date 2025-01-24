@@ -15,7 +15,7 @@ on:
 jobs:
   setup_server_matrix:
     name: Setup the server test matrix
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -33,7 +33,7 @@ jobs:
 
   test_client:
     needs: [setup_server_matrix]
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
@@ -98,7 +98,7 @@ jobs:
           ./mvnw -B -V -e clean install -DskipTests
         working-directory: client
 
-      - name: Run remote controller for os tests
+      - name: Run remote controller for non-enterprise tests
         if: ${{ matrix.tests_type == 'os' }}
         working-directory: client/hazelcast-java-client/target/test-artifacts
         run: |
@@ -109,7 +109,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }}
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Dtest.hazelcast-server.version=${{ matrix.server_version }}
         working-directory: client/hazelcast-java-client
 
       - name: Copy vector libs
@@ -129,7 +129,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }}
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Dtest.hazelcast-server.version=${{ matrix.server_version }}
         working-directory: client/hazelcast-enterprise-java-client-vector
 
       - name: Run enterprise tests
@@ -137,5 +137,5 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Djdk.version=${{ env.JAVA_VERSION }} -Dtest.hazelcast-server.version=${{ matrix.server_version }}
+          ./mvnw -B -V -e test -Pintegration-tests -Pcode-coverage -Dtest.hazelcast-server.version=${{ matrix.server_version }}
         working-directory: client/hazelcast-enterprise-java-client
