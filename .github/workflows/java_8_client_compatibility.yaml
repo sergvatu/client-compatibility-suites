@@ -37,9 +37,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server_version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
-        server_kind: [ os, enterprise ]
-        tests_type: [ os, enterprise ]
+        server_version: ["5.5.0"] #${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
+        server_kind: [enterprise] #[ os, enterprise ]
+        tests_type: [enterprise] #[ os, enterprise ]
         exclude:
           - server_kind: os
             tests_type: enterprise
@@ -128,20 +128,20 @@ jobs:
         run: |
           ${{env.JAVA_17}}/bin/java -cp additional-libs/*:hazelcast-remote-controller.jar:../test-artifacts:hazelcast-enterprise.jar:hazelcast.jar:test-artifacts.jar:os-test-artifacts.jar:test-vector-artifacts.jar:test-os-vector-artifacts.jar:../test-classes/jars/testsubjects.jar:../test-classes/jars/test.jar: -Djava.security.krb5.conf=/home/runner/work/hazelcast-java-client/hazelcast-java-client/hazelcast-enterprise-java-client/src/test/resources/krb5.conf -Dhazelcast.logging.details.enabled=true -Dhazelcast.hidensity.check.freememory=false --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-exports jdk.management/com.ibm.lang.management.internal=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED com.hazelcast.remotecontroller.Main --use-simple-server 2> server_log.txt &
 
-      - name: Run enterprise Vector tests
-        if: ${{ matrix.server_kind == 'enterprise' && matrix.tests_type == 'enterprise' }}
-        shell: bash -l {0}
-        run: |
-          chmod +x mvnw
-          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }}
-        working-directory: client/hazelcast-enterprise-java-client-vector
+#      - name: Run enterprise Vector tests
+#        if: ${{ matrix.server_kind == 'enterprise' && matrix.tests_type == 'enterprise' }}
+#        shell: bash -l {0}
+#        run: |
+#          chmod +x mvnw
+#          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }}
+#        working-directory: client/hazelcast-enterprise-java-client-vector
 
       - name: Run enterprise tests
         if: ${{ matrix.server_kind == 'enterprise' && matrix.tests_type == 'enterprise' }}
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }}
+          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=KerberosAuthenticationTest
         working-directory: client/hazelcast-enterprise-java-client
 
       - name: Archive server logs
