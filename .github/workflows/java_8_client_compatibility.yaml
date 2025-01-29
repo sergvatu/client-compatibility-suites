@@ -11,6 +11,14 @@ on:
         description: Name of the branch to test client from
         required: true
         default: master
+      server_kind:
+        description: Kind of the server to test against
+        required: true
+        default: '["os", "enterprise"]'
+      test_filter:
+        description: Value for the -Dtest Maven parameter (e.g., com.mycompany.myproject.* to run all tests in a package). Leave empty to run all tests.
+        required: false
+        default: ""
 
 jobs:
   setup_server_matrix:
@@ -37,9 +45,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        server_version: ["5.5.0"] #${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
-        server_kind: [enterprise] #[ os, enterprise ]
-        tests_type: [enterprise] #[ os, enterprise ]
+        server_version: ${{ fromJson(needs.setup_server_matrix.outputs.matrix) }}
+        server_kind: ${{ fromJson(github.event.inputs.server_kind) }} #[ os, enterprise ]
+        tests_type: [ os, enterprise ]
         exclude:
           - server_kind: os
             tests_type: enterprise
@@ -113,7 +121,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }}
+          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest="${{ github.event.inputs.test_filter }}"
         working-directory: client/hazelcast-java-client
 
       - name: Copy vector libs
@@ -141,7 +149,7 @@ jobs:
         shell: bash -l {0}
         run: |
           chmod +x mvnw
-          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest=KerberosAuthenticationTest
+          JAVA_HOME=${{env.JAVA_HOME}} ./mvnw -B -V -e test -Pintegration-tests -Dtest.hazelcast-server.version=${{ matrix.server_version }} -Dtest="${{ github.event.inputs.test_filter }}"
         working-directory: client/hazelcast-enterprise-java-client
 
       - name: Archive server logs
