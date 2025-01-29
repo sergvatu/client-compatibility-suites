@@ -152,3 +152,10 @@ jobs:
           path: |
             client/hazelcast-java-client/target/test-artifacts/server_log.txt
             client/hazelcast-enterprise-java-client/target/test-artifacts/server_log.txt
+
+      - name: Archive server logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kerberos-conf
+          path: /Users/runner/work/client-compatibility-suites/client-compatibility-suites/client/hazelcast-enterprise-java-client/src/test/resources
