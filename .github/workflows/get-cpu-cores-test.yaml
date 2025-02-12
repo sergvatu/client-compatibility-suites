@@ -1,6 +1,7 @@
 name: Get CPU cores number test
 
 on:
+  push:
 
 jobs:
   test:
