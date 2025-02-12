@@ -1,0 +1,30 @@
+name: Get CPU cores number test
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Get number of CPU cores using SimenB/github-actions-cpu-cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+      - name: github-actions-cpu-cores returns
+        run: echo ${{ steps.cpu-cores.outputs.count }}
+      - name: Get number of CPU cores using script
+        run: |
+          echo "Determining number of cores..."
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            CORES=$(nproc)
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            CORES=$(sysctl -n hw.ncpu)
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            CORES=$NUMBER_OF_PROCESSORS
+          else
+            echo "Unknown OS. Defaulting to 2 cores."
+            CORES=2
+          fi
+          echo "NUMBER_OF_CORES=$CORES" >> $GITHUB_ENV
+          echo "Detected $CORES cores"
